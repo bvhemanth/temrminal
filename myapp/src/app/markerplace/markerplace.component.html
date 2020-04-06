@@ -1,0 +1,805 @@
+<!-- market-place works! -->
+<div class ="mainLayout" (scroll)="onScroll($event)">
+    <div class="row search">
+        <div class="searchdiv">
+            <div *ngIf="afterSearch">
+                <span>{{OriginPort}}</span> &nbsp;&nbsp;
+                <i class="fa fa-long-arrow-right" aria-hidden="true"></i>&nbsp;&nbsp;
+                <span>{{DestinationPort}}</span>&nbsp;&nbsp;
+                <i class="fa fa-times closesearch" (click)="defaultSearch()" aria-hidden="true"></i>
+            </div>
+            <div *ngIf="searchScreen">
+                <form [formGroup]="profileForm" class="example-form">
+                    <span>I'm looking to send shipment via</span>
+                    <mat-form-field>
+                        <mat-label>Select Your Mode of Transport</mat-label>
+                        <select matNativeControl required formControlName="Mode" (change)="changeName()">
+                            <option value="" selected disabled hidden>Select</option>
+                            <option value="AIR">Air</option>
+                            <option value="LCL">LCL</option>
+                        </select>
+                    </mat-form-field>
+                    
+                    <mat-form-field>
+                        <input matInput placeholder="{{originPlaceHolder}}" aria-label="State" [matAutocomplete]="auto" [formControl]="profileForm.controls['searchMoviesCtrl']" required>
+                        <mat-autocomplete #auto="matAutocomplete">
+                          <ng-container>
+                            <mat-option *ngFor="let data of filteredMovies" [value]="data.Airport_Code">
+                                <div class="matCustomeOption" title="{{ data.Name }}">
+                                    <span class="badge badge-primary" data-toggle="tooltip" data-placement="bottom" title="{{data.Airport_Name}}" style="font-size:0.8em;font-weight: normal;">{{ data.Airport_Code }}</span>&nbsp;
+                                    <span style="font-size:0.8em;">{{ data.Airport_Name }}</span>
+                                </div>
+                            </mat-option>
+                          </ng-container>
+                        </mat-autocomplete>
+                    </mat-form-field>
+                    <mat-form-field>
+                        <input matInput placeholder="{{destPlaceHolder}}"  aria-label="State" [matAutocomplete]="auto1" [formControl]="profileForm.controls['searchMoviesCtrlDest']" >
+                        <mat-autocomplete #auto1="matAutocomplete">
+                          <!-- <mat-option  class="is-loading">Loading...</mat-option> -->
+                          <ng-container>
+                            <mat-option *ngFor="let data of filteredMovies1" [value]="data.Airport_Code">
+                                <div class="matCustomeOption" title="{{ data.Name }}">
+                                    <span class="badge badge-primary" data-toggle="tooltip" data-placement="bottom" title="{{data.Airport_Name}}" style="font-size:0.8em;font-weight: normal;">{{ data.Airport_Code }}</span>&nbsp;
+                                    <span style="font-size:0.8em;">{{ data.Airport_Name }}</span>
+                                </div>
+                            </mat-option>
+                          </ng-container>
+                        </mat-autocomplete>
+                    </mat-form-field>
+                    <button type="submit" (click)="search()" [disabled]='!profileForm.valid'>
+                         <!--[disabled]="!profileForm.valid"  -->
+                        <i class="fa fa-search" aria-hidden="true"></i>
+                    </button>
+                </form>
+                <div>
+                    <h2 class="main_title">Welcome to TERMINAL<span class="c_orange">2!</span></h2>
+                    <h4><i>Your freight forwarding friendly marketplace!</i></h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <h2 class="list_title c_orange">Browse Current Offers</h2>
+    <div class="row" style="margin-top:30px;">
+        <!-- *ngIf="filterDataresults" -->
+        <div class="col-sm-1"></div> 
+        <div class="col-sm-4">
+            <mat-form-field class="filters" style="width: 120px;">
+                <mat-label>Express</mat-label>
+                <mat-select disableRipple>
+                  <mat-option value="1">ALL Inclusive</mat-option>
+                  <mat-option value="2">Express</mat-option>
+                  <mat-option value="3">Option 3</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <div class="dropdown">
+                <button (click)="myFunction()" class="dropbtn">Validity</button>
+                <div id="myDropdown" class="dropdown-content">
+                    <mat-slider min="0" max="100" step="1" (change)='slider()' value="0" [(ngModel)]="sliderValue"></mat-slider> {{sliderValue}}
+                </div>
+            </div>
+            <mat-form-field class="filters" style="width: 120px;">
+                <mat-label>Ratings</mat-label>
+                <mat-select disableRipple>
+                    <mat-option valu="1">1</mat-option>
+                    <mat-option value="2">2</mat-option>
+                    <mat-option value="3">3</mat-option>
+                    <mat-option value="3">4</mat-option>
+                    <mat-option value="3">5</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div class="col-sm-2"></div>
+        <div class="col-sm-4">
+            <div class="dropdown">
+                <button (click)="cutoff()" class="dropbtn">Cut off date</button>
+                <div id="cuoffdrop" class="dropdown-content">
+                    From
+                    <mat-form-field style="width: 120px;">
+                        <mat-label>Choose a date</mat-label>
+                        <input matInput [matDatepicker]="picker" (click)="picker.open()">
+                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-datepicker #picker></mat-datepicker>
+                    </mat-form-field>
+                    To
+                    <mat-form-field style="width: 120px;">
+                        <mat-label>Choose a date</mat-label>
+                        <input matInput [matDatepicker]="picker1">
+                        <mat-datepicker-toggle matSuffix [for]="picker1" ></mat-datepicker-toggle>
+                        <mat-datepicker #picker1></mat-datepicker>
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="dropdown">
+                <button (click)="etdDrop()" class="dropbtn">ETD</button>
+                <div id="etddrop" class="dropdown-content">
+                    <mat-form-field style="width: 120px;">
+                        <mat-label>Choose a date</mat-label>
+                        <input matInput [matDatepicker]="picker2">
+                        <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                        <mat-datepicker #picker2></mat-datepicker>
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="dropdown">
+                <button (click)="etaDrop()" class="dropbtn">ETA</button>
+                <div id="etadrop" class="dropdown-content">
+                    <mat-form-field style="width: 120px;">
+                        <mat-label>Choose a date</mat-label>
+                        <input matInput [matDatepicker]="picker3">
+                        <mat-datepicker-toggle matSuffix [for]="picker3"></mat-datepicker-toggle>
+                        <mat-datepicker #picker3></mat-datepicker>
+                    </mat-form-field>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-2"></div>
+    </div>
+    <div *ngIf="searchDataresults" class="row justify-content-center maindata" >
+        <!-- <div class="col-sm-1">+</div> -->
+        <div class="col-sm-10" *ngFor="let data of incomingbookings; let i = index;">
+            <div class="journey">
+                <span *ngIf="data.Air_Lcl=='AIR'"> <i class="fa fa-plane" aria-hidden="true"></i> </span>
+                <span *ngIf="data.Air_Lcl=='LCL'"> <i class="fa fa-ship" aria-hidden="true"></i> </span> &nbsp; {{data.Origin_Airport_Code}} &nbsp;&nbsp;<i style="font-size:12px" class="fa">&#xf178;</i>&nbsp;&nbsp; {{data.Destination_Airport_Code}}</div>
+            <mat-accordion [togglePosition]="'before'">
+                <mat-expansion-panel hideToggle="true" [expanded]="panelOpenState" [disabled]="true" #mep="matExpansionPanel">
+                <mat-expansion-panel-header [collapsedHeight]="'200px'" [expandedHeight]="'200px'" (click)="click()" >
+                    <mat-panel-title>
+                        <table class="topTable table">
+                            <thead>
+                                <tr class="c_blue fs12 tac">
+                                    <th rowspan="2">
+                                        <div>Currency</div>
+                                    </th>
+                                    <th colspan="11">
+                                        <div >Freight Charges & Surcharges</div>
+                                    </th>
+                                    <th colspan="3">Schedule
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th>
+                                        Min
+                                    </th>
+                                    <th>
+                                        -45
+                                    </th>
+                                    <th>
+                                        +45
+                                    </th>
+                                    <th>
+                                        +100
+                                    </th>
+                                    <th>
+                                        +250
+                                    </th>
+                                    <th>
+                                        +300
+                                    </th>
+                                    <th>
+                                        +500
+                                    </th>
+                                    <th>
+                                        +1000
+                                    </th>
+                                    <th>
+                                        <div>Fuel</div>
+                                    </th>
+                                    
+                                    <th> Security</th>
+                                    
+                                    <th>
+                                        <div>Others</div>
+                                    </th>
+                                    <th>
+                                        Freight Rec. Cutoff
+                                    </th>
+                                    <th>
+                                        ETD
+                                    </th>
+                                    <th>
+                                        ETA
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        {{data.serviceName}}      
+                                    </td>
+                                    <td>
+                                        {{data.Freight_Rate_Min}}
+                                    </td>
+                                    <td>
+                                        {{data.Freight_Rate_Lessthan_45}}
+                                    </td>
+                                    <td>
+                                        {{data.Freight_Rate_Above_45}}
+                                    </td>
+                                    <td>
+                                        {{data.Freight_Rate_Above_100}}
+                                    </td>
+                                    <td>
+                                        {{data.Freight_Rate_Above_250}}
+                                    </td>
+                                    <td>
+                                        {{data.Freight_Rate_Above_300}}
+                                    </td>
+                                    <td>
+                                        {{data.Freight_Rate_Above_500}}
+                                    </td>
+                                    <td>
+                                        {{data.Freight_Rate_Above_1000}}
+                                    </td>
+                                    <td>
+                                        {{data.Surcharges_Fuel}}
+                                    </td>
+                                
+                                    <td>
+                                        {{data.Surcharges_Security}}
+                                        
+                                    </td>
+                                    <td>
+                                        {{data.Surcharges_Others}}
+                                    
+                                    </td>
+                                    <td>
+                                        {{data.Freight_Receipt_Cut_Off | date:'dd-MMM-yy hh:mm'}}
+                                        
+                                    </td>
+                                    <td>
+                                        {{data.ETD | date :'dd-MMM-yy'}}
+                                    
+                                    </td>
+                                    <td>
+                                        {{data.ETA | date :'dd-MMM-yy'}}
+                                    </td>
+                                </tr>
+                                <tr class="c_blue fs12 tac">
+                                    <td rowspan="2">
+                                    </td>
+                                    <td colspan="8">
+                                        
+                                        <i>{{data.Freight_Rate_Tax}}% (Tax)</i>
+                                        <div class="bracket"></div>
+                                    </td>
+                                    <td>
+                                       
+                                        <i>{{data.Surcharges_FuelTax}}% (Tax)</i>
+                                        <div class="bracket"></div>
+                                    </td>
+                                    <td> 
+                                       
+                                        <i>{{data.Surcharges_SecurityTax}}% (Tax)</i>
+                                        <div class="bracket"></div>
+                                    </td>
+                                    <td> 
+                                        
+                                        <i>{{data.Surcharges_OthersTax}}% (Tax)</i>
+                                        <div class="bracket"></div>
+                                    </td>
+                                    <td colspan="3">
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="2">
+                                        <div class="row">
+                                            
+                                            <div style="width: 53px;display: block;height: 14px;">
+                                                <div style="width: 47px;">
+                                                    <span class="stars-container stars-{{getvalue(data.Forwarder_Rating)}}">★★★★★</span>
+                                                    <!-- incomingbookings.Rating -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td colspan="11"></td>
+                                    <td colspan="2">
+                                        <div class="pull-right">
+                                            <button class="btn btnMarket" (click)="viewBooking(data.Id,data)">Book Now</button>
+                                            <span class="c_orange" (click)=" getTheDetails(data.Id,i); mep.expanded = !mep.expanded;">View Detail</span>
+                                        </div>   
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </mat-panel-title>
+                
+                    <!-- <mat-panel-description>
+                    Type your name and age
+                    </mat-panel-description> -->
+                </mat-expansion-panel-header>
+            
+                <div class="row dropdowntable" id="dropdowntable">
+                    <div class="ODCO">
+                        <div class="row c_lightblue">Origin</div>
+                  
+                        <table>
+                            <thead>
+                                <tr class="fs11">
+                                    <th>Charge</th>
+                                    <th>Charge Basis</th>
+                                    <th>Currency</th>
+                                    <th>Rate</th>
+                                    <th>Tax</th>
+                                </tr>
+                            </thead>
+                        </table>
+                        <table>
+                            <tr *ngFor="let data of data.OfferOriginCharges; let i= index;">     
+                                <td>
+                                    {{data.Charge_Or_Service_Code}}
+                                </td>
+                                <td>
+                                    {{data.Unit}}
+                                </td>
+                                <td>
+                                    {{data.Currency_Code}}
+                                </td>
+                                <td>
+                                    {{data.Rate}}
+                                </td>
+                                <td>
+                                    {{data.Tax}}
+                                </td>
+                            </tr>
+                            <tr *ngIf="data.OfferOriginCharges.length==0">
+                                <td>
+                                    No Data available
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="ODCD">
+                        <div class="row">Destination</div>
+                        <table>
+                            <thead>
+                                <tr class="fs11">
+                                    <th>Charge</th>
+                                    <th>Charge Basis</th>
+                                    <th>Currency</th>
+                                    <th>Rate</th>
+                                    <th>Tax</th>
+                                </tr>
+                            </thead>
+                        </table>
+                        <table>
+                            <tr *ngIf="data.OfferDestinationCharges.length==0">
+                                <td colspan="5">
+                                    No Data available
+                                </td>
+                            </tr>
+                            <tr *ngFor="let data of data.OfferDestinationCharges">
+                                <td>
+                                    {{data.Charge_Or_Service_Code}}
+                                </td>
+                                <td>
+                                    <span *ngIf="!data.Unit">0</span> {{data.Unit}}
+                                </td>
+                                <td class="tac">
+                                    <span *ngIf="!data.Currency_Code">0</span> {{data.Currency_Code}}
+                                </td>
+                                <td>
+                                <span *ngIf="!data.Rate">0</span> {{data.Rate}}
+                                </td>
+                                <td>
+                                    <span *ngIf="!data.Tax">0</span> {{data.Tax}}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="ADDSO">
+                        <div class="row c_lightblue">Origin</div>
+                        <table>
+                            <thead>
+                                <tr class="fs11 ">
+                                    <th>Service</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                        </table>
+                        <table>                               
+                            <tr *ngIf="data.offerAdditionalServiceOrigin.length==0">
+                                <td colspan="2">
+                                    No Data available
+                                </td>
+                            </tr>
+                            <tr *ngFor="let data of data.offerAdditionalServiceOrigin">
+                                <td>
+                                    <span *ngIf="!data.Charge_Or_Service_Name">0</span> {{data.Charge_Or_Service_Name}}
+                                </td>
+                                <td>>
+                                    <span *ngIf="!data.Charge_Or_Service_Description">0</span> {{data.Charge_Or_Service_Description}}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="ADDSD">
+                        <div class="row c_lightblue">Destination </div>
+                        <table>
+                            <thead>
+                                <tr class="fs11 ">
+                                    <th class="c_lightblue">Service</th>
+                                    <th class="c_lightblue">Description</th>
+                                </tr>
+                            </thead>
+                        </table>
+                        <table>
+                            <tr *ngIf="data.offerAdditionalServiceDestination.length==0">
+                                <td colspan="2">
+                                    No Data available
+                                </td>
+                            </tr>
+                            <tr *ngFor="let data of data.offerAdditionalServiceDestination">
+                                <td>
+                                    <span *ngIf="!data.Charge_Or_Service_Name">0</span> {{data.Charge_Or_Service_Name}}
+                                </td>
+                                <td>
+                                    <span *ngIf="!data.Charge_Or_Service_Description">0</span> {{data.Charge_Or_Service_Description}}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                </mat-expansion-panel>
+            </mat-accordion>
+        </div>
+    </div>
+
+    <div *ngIf="filterDataresults" class="row justify-content-center maindata" >
+        <!-- <div class="col-sm-1">+</div> -->
+        <div class="col-sm-10" *ngFor="let data of incomingbookings; let i= index;">
+            <table *ngIf="i==0" class="topTable table">
+                <thead>
+                    <tr class="c_blue fs12 tac">
+                        <th rowspan="2">
+                            <div>Currency</div>
+                        </th>
+                        <th colspan="11">
+                            <div >Freight Charges & Surcharges</div>
+                        </th>
+                        <th colspan="3">Schedule
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>
+                            Min
+                        </th>
+                        <th>
+                            -45
+                        </th>
+                        <th>
+                            +45
+                        </th>
+                        <th>
+                            +100
+                        </th>
+                        <th>
+                            +250
+                        </th>
+                        <th>
+                            +300
+                        </th>
+                        <th>
+                            +500
+                        </th>
+                        <th>
+                            +1000
+                        </th>
+                        <th>
+                            <div>Fuel</div>
+                        </th>
+                        
+                        <th> Security</th>
+                        
+                        <th>
+                            <div>Others</div>
+                        </th>
+                        <th>
+                            Freight Rec. Cutoff
+                        </th>
+                        <th>
+                            ETD
+                        </th>
+                        <th>
+                            ETA
+                        </th>
+                    </tr>
+                </thead>
+            </table>
+            <mat-accordion [togglePosition]="'before'">
+                <mat-expansion-panel hideToggle="true" [expanded]="panelOpenState" [disabled]="true" #mep="matExpansionPanel">
+                <mat-expansion-panel-header [collapsedHeight]="'136px'" [expandedHeight]="'136px'" (click)="click()" >
+                    <mat-panel-title>
+                        <table class="topTable table">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        {{data.serviceName}}      
+                                    </td>
+                                    <td>
+                                        {{data.Freight_Rate_Min}}
+                                    </td>
+                                    <td>
+                                        {{data.Freight_Rate_Lessthan_45}}
+                                    </td>
+                                    <td>
+                                        {{data.Freight_Rate_Above_45}}
+                                    </td>
+                                    <td>
+                                        {{data.Freight_Rate_Above_100}}
+                                    </td>
+                                    <td>
+                                        {{data.Freight_Rate_Above_250}}
+                                    </td>
+                                    <td>
+                                        {{data.Freight_Rate_Above_300}}
+                                    </td>
+                                    <td>
+                                        {{data.Freight_Rate_Above_500}}
+                                    </td>
+                                    <td>
+                                        {{data.Freight_Rate_Above_1000}}
+                                    </td>
+                                    <td>
+                                        {{data.Surcharges_Fuel}}
+                                    </td>
+                                
+                                    <td>
+                                        {{data.Surcharges_Security}}
+                                        
+                                    </td>
+                                    <td>
+                                        {{data.Surcharges_Others}}
+                                    
+                                    </td>
+                                    <td>
+                                        {{data.Freight_Receipt_Cut_Off | date:'dd-MMM-yy hh:mm'}}
+                                        
+                                    </td>
+                                    <td>
+                                        {{data.ETD | date :'dd-MMM-yy'}}
+                                    
+                                    </td>
+                                    <td>
+                                        {{data.ETA | date :'dd-MMM-yy'}}
+                                    </td>
+                                </tr>
+                                <tr class="c_blue fs12 tac">
+                                    <td rowspan="2">
+                                    </td>
+                                    <td colspan="8">
+                                        
+                                        <i>{{data.Freight_Rate_Tax}}% (Tax)</i>
+                                        <div class="bracket"></div>
+                                    </td>
+                                    <td>
+                                       
+                                        <i>{{data.Surcharges_FuelTax}}% (Tax)</i>
+                                        <div class="bracket"></div>
+                                    </td>
+                                    <td> 
+                                        <i>{{data.Surcharges_SecurityTax}}% (Tax)</i>
+                                        <div class="bracket"></div>
+                                    </td>
+                                    <td> 
+                                        <i>{{data.Surcharges_OthersTax}}% (Tax)</i>
+                                        <div class="bracket"></div>
+                                    </td>
+                                    <td colspan="3">
+
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="2">
+                                        <div class="row">
+                                            
+                                            <div style="width: 53px;display: block;height: 14px;">
+                                                <div style="width: 55px;">
+                                                    <span class="stars-container stars-85">★★★★★</span>
+                                                    <!-- incomingbookings.Rating {{getvalue(data.Forwarder_Rating)}}-->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td colspan="11"></td>
+                                    <td colspan="2">
+                                        <div class="pull-right">
+                                            <button class="btn btnMarket">Book Now</button>
+                                            <span class="c_orange" (click)=" getTheDetails(data.Offer_Id,i); mep.expanded = !mep.expanded;">View Detail</span>
+                                        </div>   
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </mat-panel-title>
+                
+                    <!-- <mat-panel-description>
+                    Type your name and age
+                    </mat-panel-description> -->
+                </mat-expansion-panel-header>
+            
+                <div class="row dropdowntable" id="dropdowntable">
+                    <div class="ODCO">
+                        <div class="row c_lightblue">Origin</div>
+                        <table>
+                            <thead>
+                                <tr class="fs11">
+                                    <th>Charge</th>
+                                    <th>Charge Basis</th>
+                                    <th>Currency</th>
+                                    <th>Rate</th>
+                                    <th>Tax</th>
+                                </tr>
+                            </thead>
+                        </table>
+                        <table>
+                            
+                                <tr *ngFor="let data of data.OfferOriginCharges; let i= index;">     
+                                    <td>
+                                        {{data.Charge_Or_Service_Code}}
+                                    </td>
+                                    <td>
+                                        {{data.Unit}}
+                                    </td>
+                                    <td>
+                                        {{data.Currency_Code}}
+                                    </td>
+                                    <td>
+                                        {{data.Rate}}
+                                    </td>
+                                    <td>
+                                        {{data.Tax}}
+                                    </td>
+                                </tr>
+                                <tr *ngIf="data.OfferOriginCharges.length==0">
+                                    <td>
+                                        No Data available
+                                    </td>
+                                </tr>
+                            
+                        </table>
+                    </div>
+                    <div class="ODCD">
+                        <div class="row">Destination</div>
+                            <table>
+                                <thead>
+                                    <tr class="fs11">
+                                        <th>Charge</th>
+                                        <th>Charge Basis</th>
+                                        <th>Currency</th>
+                                        <th>Rate</th>
+                                        <th>Tax</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                            <table>
+                                
+                                <tr *ngIf="data.OfferDestinationCharges.length==0">
+                                    <td colspan="5">
+                                        No Data available
+                                    </td>
+                                </tr>
+                                <tr *ngFor="let data of data.OfferDestinationCharges">
+                                    <td>
+                                        {{data.Charge_Or_Service_Code}}
+                                    </td>
+                                    <td>
+                                        <span *ngIf="!data.Unit">0</span> {{data.Unit}}
+                                    </td>
+                                    <td class="tac">
+                                        <span *ngIf="!data.Currency_Code">0</span> {{data.Currency_Code}}
+                                    </td>
+                                    <td>
+                                    <span *ngIf="!data.Rate">0</span> {{data.Rate}}
+                                    </td>
+                                    <td>
+                                        <span *ngIf="!data.Tax">0</span> {{data.Tax}}
+                                    </td>
+                                </tr>
+                            </table>
+                    </div>
+
+                    <div class="ADDSO">
+                        <div class="row c_lightblue">Origin</div>
+                        <table>
+                            <thead>
+                                <tr class="fs11 ">
+                                    <th>Service</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                        </table>
+                        <table>                               
+                            <tr *ngIf="data.offerAdditionalServiceOrigin.length==0">
+                                <td colspan="2">
+                                    No Data available
+                                </td>
+                            </tr>
+                            <tr *ngFor="let data of data.offerAdditionalServiceOrigin">
+                                <td>
+                                    <span *ngIf="!data.Charge_Or_Service_Name">0</span> {{data.Charge_Or_Service_Name}}
+                                </td>
+                                <td>>
+                                    <span *ngIf="!data.Charge_Or_Service_Description">0</span> {{data.Charge_Or_Service_Description}}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="ADDSD">
+                        <div class="row c_lightblue">Destination </div>
+                        <table>
+                            <thead>
+                                <tr class="fs11 ">
+                                    <th class="c_lightblue">Service</th>
+                                    <th class="c_lightblue">Description</th>
+                                </tr>
+                            </thead>
+                        </table>
+                        <table>
+                            <tr *ngIf="data.offerAdditionalServiceDestination.length==0">
+                                <td colspan="2">
+                                    No Data available
+                                </td>
+                            </tr>
+                            <tr *ngFor="let data of data.offerAdditionalServiceDestination">
+                                <td>
+                                    <span *ngIf="!data.Charge_Or_Service_Name">0</span> {{data.Charge_Or_Service_Name}}
+                                </td>
+                                <td>
+                                    <span *ngIf="!data.Charge_Or_Service_Description">0</span> {{data.Charge_Or_Service_Description}}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                </mat-expansion-panel>
+            </mat-accordion>
+        </div>
+    </div>
+</div>
+<!-- <div *ngFor="let data of incomingbookings">
+    <mat-card>Simple card
+       {{data.Origin_Airport_Code}}
+        <div>{{data.Destination_Airport_Code}} </div>
+        <div style="width: 63px;display: block;height: 14px;">
+            <div style="width: 58px;">
+                <span class="stars-container stars-{{getvalue(data.Forwarder_Rating)}}">★★★★★</span>
+            </div>
+        </div>
+        {{data.serviceName}}
+        {{data.Freight_Rate_Min}}
+        {{data.Freight_Rate_Lessthan_45}}
+        {{data.Freight_Rate_Above_45}}
+        {{data.Freight_Rate_Above_100}}
+        {{data.Freight_Rate_Above_250}}
+        {{data.Freight_Rate_Above_300}}
+        {{data.Freight_Rate_Above_500}}
+   
+        {{data.Freight_Rate_Above_1000}}
+        {{data.Freight_Rate_Tax}}
+        {{data.Surcharges_Fuel}}
+        {{data.Surcharges_FuelTax}}
+        {{data.Surcharges_Security}}
+        {{data.Surcharges_SecurityTax}}
+        {{data.Surcharges_Others}}
+        {{data.Surcharges_OthersTax}}
+        {{data.Freight_Receipt_Cut_Off | date:'dd-MMM-yy hh:mm'}}
+        {{data.ETD | date :'dd-MMM-yy'}}
+        {{data.ETA | date :'dd-MMM-yy'}}
+
+    </mat-card>
+</div> -->
+
+
+
+

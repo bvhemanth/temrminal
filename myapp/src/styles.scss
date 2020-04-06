@@ -1,0 +1,22 @@
+/* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+.row{
+    margin-right: 0px;
+    margin-left:0px;
+}
+
+
+mat-expansion-panel {
+    width: 100%;
+  }
+mat-expansion-panel{
+    margin-bottom:20px !important;
+}
+.mat-expansion-panel-header{
+    padding:0px 2px !important;
+}
+.mat-expansion-panel-header-title, .mat-expansion-panel-header-description{
+    margin-right: 0px !important;
+}
